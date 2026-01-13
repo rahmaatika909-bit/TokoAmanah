@@ -273,6 +273,63 @@
             color: #777;
             font-size: 14px;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit, .btn-delete, .btn-add {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-add {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+        }
+
+        .btn-add:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-edit {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #e67e22;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .total-info {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3498db;
+        }
         
         @media (max-width: 768px) {
             .header-content {
@@ -349,7 +406,7 @@
         <div class="controls">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" id="search-input" placeholder="Cari barang berdasarkan nama, kategori, atau supplier...">
+                <input type="text" id="search-input" placeholder="Cari nama barang atau supplier...">
             </div>
             
             <div class="filters">
@@ -359,13 +416,11 @@
                     <option value="Suplemen">Suplemen</option>
                     <option value="Obat-obatan">Obat-obatan</option>
                 </select>
-                
-                <select id="stock-filter">
-                    <option value="semua">Semua Stok</option>
-                    <option value="rendah">Stok Rendah (&lt; 15)</option>
-                    <option value="sedang">Stok Sedang (15-30)</option>
-                    <option value="tinggi">Stok Tinggi (&gt; 30)</option>
-                </select>
+            </div>
+
+            <div class="header-actions">
+                <span class="total-info" id="total-display">Total Barang: 10</span>
+                <button class="btn-add" onclick="addNewItem()"><i class="fas fa-plus"></i> Tambah Barang Baru</button>
             </div>
         </div>
         
@@ -379,6 +434,7 @@
                         <th><i class="fas fa-tag"></i> Harga</th>
                         <th><i class="fas fa-boxes"></i> Stok</th>
                         <th><i class="fas fa-truck"></i> Supplier</th>
+                        <th><i class="fas fa-cogs"></i> Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -445,6 +501,12 @@
                     <td class="harga">${formatRupiah(barang.harga)}</td>
                     <td class="stok ${getStockClass(barang.stok)}">${barang.stok}</td>
                     <td class="supplier">${barang.supplier}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="editItem('${barang.kode}')"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="btn-delete" onclick="deleteItem('${barang.kode}')"><i class="fas fa-trash"></i> Hapus</button>
+                        </div>
+                    </td>
                 `;
                 
                 tableBody.appendChild(row);
@@ -452,6 +514,7 @@
             
             // Update total barang
             document.getElementById('total-barang').textContent = data.length;
+            document.getElementById('total-display').textContent = `Total Barang: ${data.length}`;
             
             // Update statistik berdasarkan kategori
             const totalMinuman = data.filter(item => item.kategori === "Minuman").length;
@@ -467,7 +530,6 @@
         function filterData() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             const selectedCategory = document.getElementById('category-filter').value;
-            const selectedStock = document.getElementById('stock-filter').value;
             
             let filteredData = barangData.filter(barang => {
                 // Filter berdasarkan pencarian
@@ -480,18 +542,80 @@
                 // Filter berdasarkan kategori
                 const matchesCategory = selectedCategory === "semua" || barang.kategori === selectedCategory;
                 
-                // Filter berdasarkan stok
-                let matchesStock = true;
-                if (selectedStock !== "semua") {
-                    if (selectedStock === "rendah") matchesStock = barang.stok < 15;
-                    else if (selectedStock === "sedang") matchesStock = barang.stok >= 15 && barang.stok <= 30;
-                    else if (selectedStock === "tinggi") matchesStock = barang.stok > 30;
-                }
-                
-                return matchesSearch && matchesCategory && matchesStock;
+                return matchesSearch && matchesCategory;
             });
             
             renderTable(filteredData);
+        }
+
+        // Tambah item baru
+        function addNewItem() {
+            const nama = prompt('Masukkan nama barang:');
+            if (!nama) return;
+            
+            const kategori = prompt('Masukkan kategori (Minuman/Suplemen/Obat-obatan):');
+            if (!kategori) return;
+            
+            const harga = parseFloat(prompt('Masukkan harga:'));
+            if (!harga) return;
+            
+            const stok = parseInt(prompt('Masukkan jumlah stok:'));
+            if (!stok) return;
+            
+            const supplier = prompt('Masukkan supplier:');
+            if (!supplier) return;
+            
+            const newKode = 'BRG-' + (Math.floor(Math.random() * 900) + 100);
+            
+            barangData.push({
+                kode: newKode,
+                kategori: kategori,
+                nama: nama,
+                harga: harga,
+                stok: stok,
+                supplier: supplier
+            });
+            
+            filterData();
+            alert('Barang berhasil ditambahkan!');
+        }
+
+        // Edit item
+        function editItem(kode) {
+            const barang = barangData.find(b => b.kode === kode);
+            if (!barang) return;
+            
+            const nama = prompt('Edit nama barang:', barang.nama);
+            if (nama === null) return;
+            
+            const harga = parseFloat(prompt('Edit harga:', barang.harga));
+            if (!harga) return;
+            
+            const stok = parseInt(prompt('Edit stok:', barang.stok));
+            if (!stok && stok !== 0) return;
+            
+            const supplier = prompt('Edit supplier:', barang.supplier);
+            if (!supplier) return;
+            
+            barang.nama = nama;
+            barang.harga = harga;
+            barang.stok = stok;
+            barang.supplier = supplier;
+            
+            filterData();
+            alert('Barang berhasil diperbarui!');
+        }
+
+        // Hapus item
+        function deleteItem(kode) {
+            if (!confirm('Apakah Anda yakin ingin menghapus barang ini?')) return;
+            
+            const index = barangData.findIndex(b => b.kode === kode);
+            if (index > -1) {
+                barangData.splice(index, 1);
+                filterData();
+                alert('Barang berhasil dihapus!');
+            }
         }
 
         // Inisialisasi aplikasi
@@ -504,7 +628,6 @@
             
             // Tambahkan event listener untuk filter
             document.getElementById('category-filter').addEventListener('change', filterData);
-            document.getElementById('stock-filter').addEventListener('change', filterData);
         }
 
         // Jalankan aplikasi saat halaman dimuat
