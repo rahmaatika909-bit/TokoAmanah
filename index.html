@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Stok Barang</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 25px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        h1 i {
+            margin-right: 10px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .total-items {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-box {
+            flex-grow: 1;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 14px;
+            color: #777;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        select {
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 15px;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        
+        th i {
+            margin-right: 8px;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        td {
+            padding: 16px 15px;
+            font-size: 15px;
+        }
+        
+        .kategori {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .minuman {
+            background-color: #e1f5fe;
+            color: #0277bd;
+        }
+        
+        .suplemen {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .obat {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .stok {
+            font-weight: 600;
+        }
+        
+        .stok.rendah {
+            color: #e74c3c;
+        }
+        
+        .stok.sedang {
+            color: #f39c12;
+        }
+        
+        .stok.tinggi {
+            color: #27ae60;
+        }
+        
+        .harga {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .supplier {
+            color: #555;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #777;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+        
+        .stat-icon.minuman {
+            background-color: #e1f5fe;
+            color: #0277bd;
+        }
+        
+        .stat-icon.suplemen {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .stat-icon.obat {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-info p {
+            color: #777;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+                font-size: 14px;
+            }
+            
+            .stat-card {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1><i class="fas fa-boxes"></i> Sistem Manajemen Stok Barang</h1>
+                    <p class="subtitle">Kelola dan pantau stok barang Anda dengan mudah</p>
+                </div>
+                <div class="total-items">
+                    <span id="total-barang">10</span> Barang Tersedia
+                </div>
+            </div>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-icon minuman">
+                    <i class="fas fa-wine-bottle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="total-minuman">3</h3>
+                    <p>Jenis Minuman</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon suplemen">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="total-suplemen">3</h3>
+                    <p>Jenis Suplemen</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon obat">
+                    <i class="fas fa-prescription-bottle-medical"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="total-obat">4</h3>
+                    <p>Jenis Obat-obatan</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Cari barang berdasarkan nama, kategori, atau supplier...">
+            </div>
+            
+            <div class="filters">
+                <select id="category-filter">
+                    <option value="semua">Semua Kategori</option>
+                    <option value="Minuman">Minuman</option>
+                    <option value="Suplemen">Suplemen</option>
+                    <option value="Obat-obatan">Obat-obatan</option>
+                </select>
+                
+                <select id="stock-filter">
+                    <option value="semua">Semua Stok</option>
+                    <option value="rendah">Stok Rendah (&lt; 15)</option>
+                    <option value="sedang">Stok Sedang (15-30)</option>
+                    <option value="tinggi">Stok Tinggi (&gt; 30)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="inventory-table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-barcode"></i> Kode Barang</th>
+                        <th><i class="fas fa-tags"></i> Kategori</th>
+                        <th><i class="fas fa-cube"></i> Nama Barang</th>
+                        <th><i class="fas fa-tag"></i> Harga</th>
+                        <th><i class="fas fa-boxes"></i> Stok</th>
+                        <th><i class="fas fa-truck"></i> Supplier</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <!-- Data barang akan dimasukkan di sini oleh JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <footer>
+            <p>&copy; 2023 Sistem Manajemen Stok Barang. Data diperbarui secara real-time.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Data barang dari contoh yang diberikan
+        const barangData = [
+            { kode: "BRG-11", kategori: "Minuman", nama: "Teh Sosro Kotak", harga: 6000, stok: 10, supplier: "PT. Maju" },
+            { kode: "BRG-12", kategori: "Minuman", nama: "Teh Pucuk", harga: 5000, stok: 12, supplier: "PT. Maju" },
+            { kode: "BRG-13", kategori: "Minuman", nama: "Teh Java", harga: 4000, stok: 15, supplier: "PT Jaya" },
+            { kode: "BRG-21", kategori: "Suplemen", nama: "U cee 1000", harga: 7000, stok: 20, supplier: "PT Jaya" },
+            { kode: "BRG-22", kategori: "Suplemen", nama: "Kratindeng 200", harga: 8000, stok: 25, supplier: "Kasih Farma" },
+            { kode: "BRG-23", kategori: "Suplemen", nama: "Hemaviton 200", harga: 7500, stok: 35, supplier: "Kasih Farma" },
+            { kode: "BRG-31", kategori: "Obat-obatan", nama: "Sanmol Syrup", harga: 12000, stok: 40, supplier: "Aura Farma" },
+            { kode: "BRG-32", kategori: "Obat-obatan", nama: "Paramex", harga: 4000, stok: 40, supplier: "Aura Farma" },
+            { kode: "BRG-33", kategori: "Obat-obatan", nama: "Antimo", harga: 6000, stok: 60, supplier: "PT. Naninu" },
+            { kode: "BRG-34", kategori: "Obat-obatan", nama: "New Diatab", harga: 4500, stok: 60, supplier: "PT. Naninu" }
+        ];
+
+        // Format angka ke format Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { 
+                style: 'currency', 
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        }
+
+        // Tentukan kelas stok berdasarkan jumlah
+        function getStockClass(stok) {
+            if (stok < 15) return "rendah";
+            if (stok <= 30) return "sedang";
+            return "tinggi";
+        }
+
+        // Tentukan kelas kategori
+        function getCategoryClass(kategori) {
+            if (kategori === "Minuman") return "minuman";
+            if (kategori === "Suplemen") return "suplemen";
+            return "obat";
+        }
+
+        // Render data ke tabel
+        function renderTable(data) {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            data.forEach(barang => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td><strong>${barang.kode}</strong></td>
+                    <td><span class="kategori ${getCategoryClass(barang.kategori)}">${barang.kategori}</span></td>
+                    <td>${barang.nama}</td>
+                    <td class="harga">${formatRupiah(barang.harga)}</td>
+                    <td class="stok ${getStockClass(barang.stok)}">${barang.stok}</td>
+                    <td class="supplier">${barang.supplier}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Update total barang
+            document.getElementById('total-barang').textContent = data.length;
+            
+            // Update statistik berdasarkan kategori
+            const totalMinuman = data.filter(item => item.kategori === "Minuman").length;
+            const totalSuplemen = data.filter(item => item.kategori === "Suplemen").length;
+            const totalObat = data.filter(item => item.kategori === "Obat-obatan").length;
+            
+            document.getElementById('total-minuman').textContent = totalMinuman;
+            document.getElementById('total-suplemen').textContent = totalSuplemen;
+            document.getElementById('total-obat').textContent = totalObat;
+        }
+
+        // Filter data berdasarkan kriteria
+        function filterData() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('category-filter').value;
+            const selectedStock = document.getElementById('stock-filter').value;
+            
+            let filteredData = barangData.filter(barang => {
+                // Filter berdasarkan pencarian
+                const matchesSearch = 
+                    barang.kode.toLowerCase().includes(searchTerm) ||
+                    barang.kategori.toLowerCase().includes(searchTerm) ||
+                    barang.nama.toLowerCase().includes(searchTerm) ||
+                    barang.supplier.toLowerCase().includes(searchTerm);
+                
+                // Filter berdasarkan kategori
+                const matchesCategory = selectedCategory === "semua" || barang.kategori === selectedCategory;
+                
+                // Filter berdasarkan stok
+                let matchesStock = true;
+                if (selectedStock !== "semua") {
+                    if (selectedStock === "rendah") matchesStock = barang.stok < 15;
+                    else if (selectedStock === "sedang") matchesStock = barang.stok >= 15 && barang.stok <= 30;
+                    else if (selectedStock === "tinggi") matchesStock = barang.stok > 30;
+                }
+                
+                return matchesSearch && matchesCategory && matchesStock;
+            });
+            
+            renderTable(filteredData);
+        }
+
+        // Inisialisasi aplikasi
+        function initApp() {
+            // Render data awal
+            renderTable(barangData);
+            
+            // Tambahkan event listener untuk pencarian
+            document.getElementById('search-input').addEventListener('input', filterData);
+            
+            // Tambahkan event listener untuk filter
+            document.getElementById('category-filter').addEventListener('change', filterData);
+            document.getElementById('stock-filter').addEventListener('change', filterData);
+        }
+
+        // Jalankan aplikasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
